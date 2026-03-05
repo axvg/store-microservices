@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: product-service
+
+server:
+  port: 8080
+
+datasource:
+  url: jdbc:postgresql://localhost:5432/productdb
+  username: postgres
+  password: postgres
+  driver-class-name: org.postgresql.Driver
+  hikari:
+    maximum-pool-size: 10
+    minimum-idle: 5
+    idle-timeout: 30000
+    connection-timeout: 20000
+    max-lifetime: 1800000
+
+jpa:
+  properties:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      format_sql: true
+      jdbc:
+        lob:
+          non_contextual_creation: true # for better handling of large objects
+  hibernate:
+    ddl-auto: validate # used for dev, change for production to none or update
+  show-sql: true
+
+user:
+  service:
+    url: http://localhost:8081
+
+jwt:
+  secret: m1s3cr3tK3y
+  expiration: 1 * 60 * 60 * 1000 # 1 hour in milliseconds
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000 # 10 seconds
+        permittedNumberOfCallsInHalfOpenState: 3
+  retry:
+    instances:
+      userService:
+        maxAttempts: 3
+        waitDuration: 2000 # 2 seconds
+
+logging:
+  level:
+    org.hibernate.SQL: INFO
+    com.example.app.micro.productservice: INFO
