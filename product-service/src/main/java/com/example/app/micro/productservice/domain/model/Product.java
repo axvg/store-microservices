@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor // new Product()
 @AllArgsConstructor // new Product(1L, "Product 1", "Description", new BigDecimal("9.99"), 100, "Category", 1L, LocalDateTime.now(), LocalDateTime.now(), null)
 public class Product {
-
     private Long id;
     private String name;
     private String description;
@@ -40,7 +39,7 @@ public class Product {
         return (
             stock != null &&
             stock > 0
-        )
+        );
     };
 
     public void reduceStock(int quantity) {
@@ -51,6 +50,7 @@ public class Product {
             throw new IllegalStateException("Not enough stock available");
         }
         stock -= quantity;
+    }
 
     public void increaseStock(int quantity) {
         if (quantity < 0) {
