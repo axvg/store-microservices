@@ -1,25 +1,22 @@
-FROM maven:3.10.1-jdk-21-slim AS MAVEN_BUILD
+FROM maven:3.9-eclipse-temurin-21 AS maven-build
 
-COPY pom.xml /build/
+WORKDIR /build
 
-COPY src /build/src/
+COPY pom.xml .
+COPY src ./src
 
-WORKDIR /build/
+RUN mvn -q -DskipTests package
 
-RUN mvn install -q
-
-FROM openjdk:21-jre-slim
+FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
 
 ARG JAR_FILE=/build/target/*.jar
 
-COPY asset /app/asset/
-
-COPY --from=MAVEN_BUILD ${JAR_FILE} /app/app.jar
+COPY --from=maven-build ${JAR_FILE} /app/app.jar
 
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "app.jar"]
+CMD ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
