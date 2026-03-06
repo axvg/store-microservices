@@ -1,33 +1,45 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: product-service
 
-server:
-  port: 8080
+  datasource:
+    url: jdbc:postgresql://localhost:5432/productdb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    defer-datasource-initialization: true
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
 
-datasource:
-  url: jdbc:postgresql://localhost:5432/productdb
-  username: postgres
-  password: postgres
-  driver-class-name: org.postgresql.Driver
-  hikari:
-    maximum-pool-size: 10
-    minimum-idle: 5
-    idle-timeout: 30000
-    connection-timeout: 20000
-    max-lifetime: 1800000
-
-jpa:
-  properties:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true # for better handling of large objects
     hibernate:
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      format_sql: true
-      jdbc:
-        lob:
-          non_contextual_creation: true # for better handling of large objects
-  hibernate:
-    ddl-auto: validate # used for dev, change for production to none or update
-  show-sql: true
+      ddl-auto: validate # used for dev, change for production to none or update
+    show-sql: true
+
+  sql:
+    init:
+      mode: always
+      platform: postgres
+      schema-locations: classpath:sql/schema.sql
+      data-locations: classpath:sql/data.sql
+
+  output:
+    ansi:
+      enabled: always
 
 user:
   service:
