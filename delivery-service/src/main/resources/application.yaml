@@ -1,0 +1,32 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: delivery-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/deliverydb
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: ${SHOW_SQL:false}
+
+  sql:
+    init:
+      mode: always
+      platform: postgres
+      schema-locations: classpath:sql/schema.sql
+      data-locations: classpath:sql/data.sql
+
+order:
+  service:
+    url: http://localhost:8082
