@@ -1,4 +1,4 @@
-package com.example.app.micro.delivery_service;
+package com.example.app.micro.deliveryservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
