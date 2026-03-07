@@ -1,0 +1,36 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: order-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orderdb
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: ${SHOW_SQL:false}
+
+  sql:
+    init:
+      mode: always
+      platform: postgres
+      schema-locations: classpath:sql/schema.sql
+      data-locations: classpath:sql/data.sql
+
+user:
+  service:
+    url: http://localhost:8081
+
+product:
+  service:
+    url: http://localhost:8080
