@@ -6,7 +6,7 @@ spring:
     name: user-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5434/userdb
+    url: jdbc:postgresql://localhost:5432/userdb
     username:  ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -27,6 +27,13 @@ spring:
     hibernate:
       ddl-auto: ${DDL_AUTO:validate}
     show-sql: ${SHOW_SQL:false}
+
+  sql:
+    init:
+      mode: always
+      platform: postgres
+      schema-locations: classpath:sql/schema.sql
+      data-locations: classpath:sql/data.sql
 
 management:
   endpoints:
@@ -51,5 +58,5 @@ logging:
 
 
 jwt:
-  secret: m1s3cr3tK3y
-  expiration: 1 * 60 * 60 * 1000 # 1 hour in milliseconds
+  secret: 4f7c9a1b6e3d8c2f0a5b9d7e1c4f8a6b2e9d0c3f7a1b6e4d9c2f8a5b1e7d3c6
+  expiration: 3600000 # 1 hour in milliseconds
