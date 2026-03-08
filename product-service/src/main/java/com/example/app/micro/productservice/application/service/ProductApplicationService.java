@@ -2,7 +2,6 @@ package com.example.app.micro.productservice.application.service;
 
 import java.util.List;
 
-import org.hibernate.sql.Delete;
 import org.springframework.stereotype.Service;
 
 import com.example.app.micro.productservice.application.usecase.CreateProductUseCase;
@@ -37,8 +36,8 @@ public class ProductApplicationService {
     }
 
     @Transactional
-    public Product getProductById(Long id, String jwtToken) {
-        return getProductByIdUseCase.execute(id, jwtToken);
+    public Product getProductById(Long id) {
+        return getProductByIdUseCase.execute(id);
     }
 
     @Transactional
