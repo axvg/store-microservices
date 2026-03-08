@@ -24,6 +24,9 @@ import lombok.NoArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
 @Entity
 @Table(name = "users", indexes = {
     @Index(name = "idx_users_email", columnList = "email", unique = true),

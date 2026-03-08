@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import com.example.app.micro.userservice.application.service.UserApplicationService;
 import com.example.app.micro.userservice.domain.model.User;
+import com.example.app.micro.userservice.infrastructure.persistence.entity.UserEntity;
+import com.example.app.micro.userservice.infrastructure.persistence.repository.JpaUserRepository;
+import com.example.app.micro.userservice.infrastructure.security.UserPrincipal;
 import com.example.app.micro.userservice.presentation.dto.CreateUserRequest;
 import com.example.app.micro.userservice.presentation.dto.UpdateUserRequest;
 import com.example.app.micro.userservice.presentation.dto.UserResponse;
@@ -34,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
     private final UserApplicationService userApplicationService;
     private final UserDtoMapper userDtoMapper;
+    private final JpaUserRepository jpaUserRepository;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -54,10 +57,44 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
         log.info("REST request to get current user: {}", authentication.getName());
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity entity = jpaUserRepository.findById(principal.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
         return ResponseEntity.ok(
                 UserResponse.builder()
-                        .email(authentication.getName())
-                        .name(authentication.getName())
+                        .id(entity.getId())
+                        .name(entity.getName())
+                        .email(entity.getEmail())
+                        .phone(entity.getPhone())
+                        .address(entity.getAddress())
+                        .createdAt(entity.getCreatedAt())
+                        .updatedAt(entity.getUpdatedAt())
+                        .build()
+        );
+    }
+
+    @PutMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponse> updateCurrentUser(
+            Authentication authentication,
+            @Valid @RequestBody UpdateUserRequest request) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        log.info("REST request to update current user profile: {}", principal.getEmail());
+        UserEntity entity = jpaUserRepository.findById(principal.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        entity.setName(request.getName());
+        entity.setPhone(request.getPhone());
+        entity.setAddress(request.getAddress());
+        UserEntity saved = jpaUserRepository.save(entity);
+        return ResponseEntity.ok(
+                UserResponse.builder()
+                        .id(saved.getId())
+                        .name(saved.getName())
+                        .email(saved.getEmail())
+                        .phone(saved.getPhone())
+                        .address(saved.getAddress())
+                        .createdAt(saved.getCreatedAt())
+                        .updatedAt(saved.getUpdatedAt())
                         .build()
         );
     }

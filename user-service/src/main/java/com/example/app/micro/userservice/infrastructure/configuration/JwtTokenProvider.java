@@ -46,6 +46,11 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String generateToken(org.springframework.security.core.Authentication authentication) {
+        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+        return generateToken(userPrincipal);
+    }
+
 
     public String getEmailFromToken(String token) {
         return getClaims(token).getSubject();
