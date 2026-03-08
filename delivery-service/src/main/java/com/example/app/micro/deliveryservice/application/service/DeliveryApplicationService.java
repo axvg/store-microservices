@@ -9,6 +9,9 @@ import com.example.app.micro.deliveryservice.application.usecase.UpdateDeliveryS
 import com.example.app.micro.deliveryservice.domain.model.Delivery;
 import com.example.app.micro.deliveryservice.domain.model.DeliveryStatus;
 
+import com.example.app.micro.deliveryservice.domain.model.DeliveryStatus;
+import com.example.app.micro.deliveryservice.infrastructure.messaging.DeliveryEventPublisher;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +22,7 @@ public class DeliveryApplicationService {
     private final AssignDriverUseCase assignDriverUseCase;
     private final UpdateDeliveryStatusUseCase updateDeliveryStatusUseCase;
     private final GetDeliveryByOrderIdUseCase getDeliveryByOrderIdUseCase;
+    private final DeliveryEventPublisher deliveryEventPublisher;
 
     @Transactional
     public Delivery createDelivery(Delivery delivery) {
@@ -27,12 +31,18 @@ public class DeliveryApplicationService {
 
     @Transactional
     public Delivery assignDriver(Long deliveryId, String driverName, Integer estimatedTime) {
-        return assignDriverUseCase.execute(deliveryId, driverName, estimatedTime);
+        Delivery delivery = assignDriverUseCase.execute(deliveryId, driverName, estimatedTime);
+        deliveryEventPublisher.publishDeliveryAssigned(delivery);
+        return delivery;
     }
 
     @Transactional
     public Delivery updateStatus(Long deliveryId, DeliveryStatus status) {
-        return updateDeliveryStatusUseCase.execute(deliveryId, status);
+        Delivery delivery = updateDeliveryStatusUseCase.execute(deliveryId, status);
+        if (status == DeliveryStatus.DELIVERED) {
+            deliveryEventPublisher.publishOrderDelivered(delivery);
+        }
+        return delivery;
     }
 
     @Transactional
