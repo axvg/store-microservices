@@ -31,6 +31,7 @@
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
 		<resilience4j.version>2.2.0</resilience4j.version>
         <jjwt.version>0.12.6</jjwt.version>
+        <lombok.version>1.18.30</lombok.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -102,6 +103,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+
 	</dependencies>
 
 	<build>
@@ -114,6 +116,7 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
 						</path>
 						<path>
 							<groupId>org.mapstruct</groupId>
