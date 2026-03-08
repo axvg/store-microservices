@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,21 +52,9 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id,
-                                                          @RequestHeader(value = "Authorization", required = false) String authHeader) {
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
         log.info("REST request to get product by id: {}", id);
-
-        String jwtToken = null;
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwtToken = authHeader.substring(7);
-        } else {
-            log.warn("No Authorization header with Bearer token found for product retrieval");
-        }
-
-        log.info("jwtToken extracted for product retrieval: {}", jwtToken != null);
-
-        Product product = productApplicationService.getProductById(id, jwtToken);
+        Product product = productApplicationService.getProductById(id);
         return ResponseEntity.ok(productDtoMapper.toResponse(product));
     }
 
