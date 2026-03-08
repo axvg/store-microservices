@@ -2,13 +2,12 @@ package com.example.app.micro.userservice.infrastructure.persistence.repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
 import com.example.app.micro.userservice.domain.model.User;
 import com.example.app.micro.userservice.domain.repository.UserRepository;
-import com.example.app.micro.userservice.infrastructure.persistence.entity.UserEntity;
+import com.example.app.micro.userservice.infrastructure.persistence.mapper.UserPersistenceMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,36 +17,31 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserRepositoryImpl implements UserRepository{
     private final JpaUserRepository jpaUserRepository;
+    private final UserPersistenceMapper userPersistenceMapper;
     
     @Override
     public List<User> findAll() {
         log.debug("Finding all users");
-        return jpaUserRepository.findAll()
-                .stream()
-                .map(this::toDomain)
-                .collect(Collectors.toList());
+        return userPersistenceMapper.toDomainList(jpaUserRepository.findAll());
     }
     
     @Override
     public Optional<User> findById(Long id) {
         log.debug("Finding user by id: {}", id);
-        return jpaUserRepository.findById(id)
-                .map(this::toDomain);
+        return jpaUserRepository.findById(id).map(userPersistenceMapper::toDomain);
     }
     
     @Override
     public Optional<User> findByEmail(String email) {
         log.debug("Finding user by email: {}", email);
-        return jpaUserRepository.findByEmail(email)
-                .map(this::toDomain);
+        return jpaUserRepository.findByEmail(email).map(userPersistenceMapper::toDomain);
     }
     
     @Override
     public User save(User user) {
         log.debug("Saving user: {}", user.getEmail());
-        UserEntity entity = toEntity(user);
-        UserEntity savedEntity = jpaUserRepository.save(entity);
-        return toDomain(savedEntity);
+        return userPersistenceMapper.toDomain(
+            jpaUserRepository.save(userPersistenceMapper.toEntity(user)));
     }
     
     @Override
@@ -60,31 +54,5 @@ public class UserRepositoryImpl implements UserRepository{
     public boolean existsByEmail(String email) {
         log.debug("Checking if email exists: {}", email);
         return jpaUserRepository.existsByEmail(email);
-    }
-    
-    // Mappers
-    
-    private User toDomain(UserEntity entity) {
-        return User.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .email(entity.getEmail())
-                .phone(entity.getPhone())
-                .address(entity.getAddress())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
-    }
-    
-    private UserEntity toEntity(User user) {
-        return UserEntity.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .address(user.getAddress())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
     }
 }
