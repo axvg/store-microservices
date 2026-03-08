@@ -6,7 +6,7 @@ spring:
     name: product-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/productdb
+    url: jdbc:postgresql://localhost:5432/storedb?sslmode=disable
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -27,12 +27,12 @@ spring:
           lob:
             non_contextual_creation: true # for better handling of large objects
     hibernate:
-      ddl-auto: validate # used for dev, change for production to none or update
+      ddl-auto: update
     show-sql: true
 
   sql:
     init:
-      mode: always
+      mode: never
       platform: postgres
       schema-locations: classpath:sql/schema.sql
       data-locations: classpath:sql/data.sql
