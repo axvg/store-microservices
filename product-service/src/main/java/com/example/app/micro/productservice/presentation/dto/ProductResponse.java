@@ -23,6 +23,4 @@ public class ProductResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean available;
-
-    private UserResponse createdByUser;
 }
