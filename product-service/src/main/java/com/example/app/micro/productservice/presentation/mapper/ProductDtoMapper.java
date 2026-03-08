@@ -6,12 +6,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.example.app.micro.productservice.domain.model.Product;
-import com.example.app.micro.productservice.infrastructure.client.mapper.UserDtoMapper;
 import com.example.app.micro.productservice.presentation.dto.CreateProductRequest;
 import com.example.app.micro.productservice.presentation.dto.ProductResponse;
 import com.example.app.micro.productservice.presentation.dto.UpdateProductRequest;
 
-@Mapper(componentModel = "spring", uses = {UserDtoMapper.class})
+@Mapper(componentModel = "spring")
 public interface ProductDtoMapper {
     Product toDomain(CreateProductRequest request);
 
