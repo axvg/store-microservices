@@ -6,7 +6,7 @@ spring:
     name: order-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/orderdb
+    url: jdbc:postgresql://localhost:5432/storedb?sslmode=disable
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -22,7 +22,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
       platform: postgres
       schema-locations: classpath:sql/schema.sql
       data-locations: classpath:sql/data.sql
@@ -34,3 +34,26 @@ user:
 product:
   service:
     url: http://localhost:8080
+
+spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+spring.kafka.producer.key-serializer: org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+spring.kafka.producer.properties.spring.json.add.type.headers: false
+resilience4j.circuitbreaker:
+  instances:
+    productService:
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+    userService:
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+
+resilience4j.retry:
+  instances:
+    productService:
+      maxAttempts: 3
+      waitDuration: 1s
+    userService:
+      maxAttempts: 3
+      waitDuration: 1s
+
