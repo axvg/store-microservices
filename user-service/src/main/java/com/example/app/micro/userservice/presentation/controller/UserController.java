@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,9 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 
 import com.example.app.micro.userservice.application.service.UserApplicationService;
@@ -43,6 +41,13 @@ public class UserController {
         log.info("REST request to get all users");
         List<User> users = userApplicationService.getAllUsers();
         return ResponseEntity.ok(userDtoMapper.toResponseList(users));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+        log.info("REST request to get user by id: {}", id);
+        User user = userApplicationService.getUserById(id);
+        return ResponseEntity.ok(userDtoMapper.toResponse(user));
     }
 
     @GetMapping("/me")
