@@ -16,6 +16,7 @@ import com.example.app.micro.orderservice.domain.model.Order;
 import com.example.app.micro.orderservice.domain.model.OrderItem;
 import com.example.app.micro.orderservice.domain.model.OrderStatus;
 import com.example.app.micro.orderservice.domain.repository.OrderRepository;
+import com.example.app.micro.orderservice.infrastructure.messaging.OrderEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +26,7 @@ public class CreateOrderUseCase {
     private final OrderRepository orderRepository;
     private final UserGateway userGateway;
     private final ProductGateway productGateway;
+    private final OrderEventPublisher orderEventPublisher;
 
     public Order execute(Order order) {
         if (order.getUserId() == null) {
@@ -57,7 +59,10 @@ public class CreateOrderUseCase {
         order.setTotalPrice(BigDecimal.ZERO);
         order.recalculateTotal();
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+        orderEventPublisher.publishOrderCreated(savedOrder);
+        
+        return savedOrder;
     }
 
     private void validateItemQuantity(Integer quantity) {

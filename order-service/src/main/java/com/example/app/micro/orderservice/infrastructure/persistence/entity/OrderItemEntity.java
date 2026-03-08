@@ -39,4 +39,48 @@ public class OrderItemEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private OrderEntity order;
+
+    // Explicit Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
+    public Long getProductId() { return productId; }
+    public void setProductId(Long productId) { this.productId = productId; }
+    
+    public Integer getQuantity() { return quantity; }
+    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+    
+    public BigDecimal getPrice() { return price; }
+    public void setPrice(BigDecimal price) { this.price = price; }
+    
+    public OrderEntity getOrder() { return order; }
+    public void setOrder(OrderEntity order) { this.order = order; }
+
+    public static OrderItemEntityBuilder builder() {
+        return new OrderItemEntityBuilder();
+    }
+
+    public static class OrderItemEntityBuilder {
+        private Long id;
+        private Long productId;
+        private Integer quantity;
+        private BigDecimal price;
+        private OrderEntity order;
+        
+        public OrderItemEntityBuilder id(Long id) { this.id = id; return this; }
+        public OrderItemEntityBuilder productId(Long productId) { this.productId = productId; return this; }
+        public OrderItemEntityBuilder quantity(Integer quantity) { this.quantity = quantity; return this; }
+        public OrderItemEntityBuilder price(BigDecimal price) { this.price = price; return this; }
+        public OrderItemEntityBuilder order(OrderEntity order) { this.order = order; return this; }
+        
+        public OrderItemEntity build() {
+            OrderItemEntity orderItemEntity = new OrderItemEntity();
+            orderItemEntity.setId(this.id);
+            orderItemEntity.setProductId(this.productId);
+            orderItemEntity.setQuantity(this.quantity);
+            orderItemEntity.setPrice(this.price);
+            orderItemEntity.setOrder(this.order);
+            return orderItemEntity;
+        }
+    }
 }
