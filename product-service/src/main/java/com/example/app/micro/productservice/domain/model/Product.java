@@ -22,8 +22,6 @@ public class Product {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private User createdByUser;
-
     public boolean isValid() {
         return (
             name != null &&
