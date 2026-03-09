@@ -42,14 +42,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         log.info("Usuario autenticado: {} con roles: {}", email, authorities);
 
-        return new User(
-                userEntity.getEmail(),       // username = email
-                userEntity.getPassword(),    // password BCrypt desde BD
-                userEntity.getEnabled(),     // enabled
-                true,                        // accountNonExpired
-                true,                        // credentialsNonExpired
-                true,                        // accountNonLocked
-                authorities                  // roles
-        );
+        return UserPrincipal.create(userEntity);
     }  
 }
