@@ -60,7 +60,7 @@ public class CreateOrderUseCase {
         order.recalculateTotal();
 
         Order savedOrder = orderRepository.save(order);
-        orderEventPublisher.publishOrderCreated(savedOrder);
+        // orderEventPublisher.publishOrderCreated(savedOrder);
         
         return savedOrder;
     }
