@@ -30,21 +30,27 @@ public class OrderCreatedListener {
             Long orderId = ((Number) orderPayload.get("id")).longValue();
             BigDecimal amount = new BigDecimal(String.valueOf(orderPayload.get("totalPrice")));
             
-            // Generate mock payment using Stripe stub implicitly handled in PaymentApplicationService or by default
-            Payment mockPayment = Payment.builder()
-                .orderId(orderId)
-                .amount(amount)
-                .method(PaymentMethod.CARD)
-                // Just stub simulation
-                .status(com.example.app.micro.paymentservice.domain.model.PaymentStatus.CONFIRMED)
-                .build();
+            try {
+                paymentApplicationService.getByOrderId(orderId);
+                log.info("Payment for order {} already exists. Skipping creation.", orderId);
+                return;
+            } catch (com.example.app.micro.paymentservice.domain.exception.PaymentNotFoundException e) {
+                // Generate mock payment using Stripe stub implicitly handled in PaymentApplicationService or by default
+                Payment mockPayment = Payment.builder()
+                    .orderId(orderId)
+                    .amount(amount)
+                    .method(PaymentMethod.CARD)
+                    // Just stub simulation
+                    .status(com.example.app.micro.paymentservice.domain.model.PaymentStatus.CONFIRMED)
+                    .build();
+                    
+                Payment createdPayment = paymentApplicationService.createPayment(mockPayment);
+                createdPayment.setStatus(com.example.app.micro.paymentservice.domain.model.PaymentStatus.CONFIRMED);
+                paymentApplicationService.confirmPayment(createdPayment.getId());
                 
-            Payment createdPayment = paymentApplicationService.createPayment(mockPayment);
-            createdPayment.setStatus(com.example.app.micro.paymentservice.domain.model.PaymentStatus.CONFIRMED);
-            paymentApplicationService.confirmPayment(createdPayment.getId());
-            
-            log.info("Payment confirmed automatically via mock. Emitting PaymentCompleted.");
-            paymentEventPublisher.publishPaymentCompleted(createdPayment);
+                log.info("Payment confirmed automatically via mock. Emitting PaymentCompleted.");
+                paymentEventPublisher.publishPaymentCompleted(createdPayment);
+            }
 
         } catch (Exception e) {
             log.error("Error processing OrderCreated event", e);
