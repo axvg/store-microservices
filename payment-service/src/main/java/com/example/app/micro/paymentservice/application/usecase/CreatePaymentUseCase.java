@@ -24,6 +24,9 @@ public class CreatePaymentUseCase {
         if (payment.getOrderId() == null) {
             throw new InvalidPaymentDataException("orderId is required");
         }
+        if (paymentRepository.findByOrderId(payment.getOrderId()).isPresent()) {
+            throw new InvalidPaymentDataException("Payment for order " + payment.getOrderId() + " already exists");
+        }
         if (!orderGateway.existsById(payment.getOrderId())) {
             throw new OrderNotFoundException(payment.getOrderId());
         }
