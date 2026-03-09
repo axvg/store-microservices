@@ -22,8 +22,8 @@ public interface JpaProductRepository extends JpaRepository<ProductEntity, Long>
     List<ProductEntity> findByName(String name);
 
     @Query("SELECT p FROM ProductEntity p WHERE p.stock > 0 " +
-           "AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%')) " +
+           "OR LOWER(p.description) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))) " +
            "AND (:category IS NULL OR p.category = :category) " +
            "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
            "AND (:maxPrice IS NULL OR p.price <= :maxPrice)")
