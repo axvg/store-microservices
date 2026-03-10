@@ -15,7 +15,7 @@ spec:
       containers:
         - name: order-service
           image: ghcr.io/axvg/store-microservices/order-service:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8082
           env:
