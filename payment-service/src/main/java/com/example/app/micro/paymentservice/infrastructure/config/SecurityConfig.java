@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/payments/health").permitAll()
-                        .requestMatchers("/actuator/health/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/payments/*/refund").hasAnyRole("ADMIN", "OPERATOR")
                         .requestMatchers(HttpMethod.POST, "/api/payments/**").hasAnyRole("USER", "ADMIN", "OPERATOR")
