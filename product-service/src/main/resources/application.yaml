@@ -69,3 +69,9 @@ logging:
   level:
     org.hibernate.SQL: INFO
     com.example.app.micro.productservice: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
