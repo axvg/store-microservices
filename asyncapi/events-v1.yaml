@@ -1,0 +1,39 @@
+asyncapi: 2.6.0
+info:
+  title: Store Events Contract
+  version: v1
+defaultContentType: application/json
+channels:
+  orders.created:
+    publish:
+      message:
+        $ref: '#/components/messages/EventEnvelope'
+  orders.confirmed:
+    publish:
+      message:
+        $ref: '#/components/messages/EventEnvelope'
+  payments.captured:
+    publish:
+      message:
+        $ref: '#/components/messages/EventEnvelope'
+  deliveries.assigned:
+    publish:
+      message:
+        $ref: '#/components/messages/EventEnvelope'
+  deliveries.status.changed:
+    publish:
+      message:
+        $ref: '#/components/messages/EventEnvelope'
+components:
+  messages:
+    EventEnvelope:
+      payload:
+        type: object
+        required: [eventId, eventType, eventVersion, timestamp, correlationId, payload]
+        properties:
+          eventId:
+            type: string
+          eventType:
+            type: string
+          eventVersion:
+            type: string
