@@ -8,8 +8,6 @@ import com.example.app.micro.deliveryservice.application.usecase.GetDeliveryByOr
 import com.example.app.micro.deliveryservice.application.usecase.UpdateDeliveryStatusUseCase;
 import com.example.app.micro.deliveryservice.domain.model.Delivery;
 import com.example.app.micro.deliveryservice.domain.model.DeliveryStatus;
-
-import com.example.app.micro.deliveryservice.domain.model.DeliveryStatus;
 import com.example.app.micro.deliveryservice.infrastructure.messaging.DeliveryEventPublisher;
 
 import jakarta.transaction.Transactional;
@@ -39,9 +37,7 @@ public class DeliveryApplicationService {
     @Transactional
     public Delivery updateStatus(Long deliveryId, DeliveryStatus status) {
         Delivery delivery = updateDeliveryStatusUseCase.execute(deliveryId, status);
-        if (status == DeliveryStatus.DELIVERED) {
-            deliveryEventPublisher.publishOrderDelivered(delivery);
-        }
+        deliveryEventPublisher.publishStatusChanged(delivery);
         return delivery;
     }
 

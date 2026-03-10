@@ -20,11 +20,16 @@ public class PaymentCompletedListener {
 
     private final DeliveryApplicationService deliveryApplicationService;
 
-    @KafkaListener(topics = "payment-completed", groupId = "delivery-group")
+    @KafkaListener(topics = "payments.captured", groupId = "delivery-group")
     public void handlePaymentCompleted(Map<String, Object> paymentPayload) {
         log.info("Received PaymentCompleted event: {}", paymentPayload);
         try {
-            Long orderId = ((Number) paymentPayload.get("orderId")).longValue();
+            Map<String, Object> payload = paymentPayload;
+            if (paymentPayload.containsKey("payload") && paymentPayload.get("payload") instanceof Map<?, ?> nestedPayload) {
+                payload = (Map<String, Object>) nestedPayload;
+            }
+
+            Long orderId = ((Number) payload.get("orderId")).longValue();
             
             Delivery mockDelivery = Delivery.builder()
                 .orderId(orderId)

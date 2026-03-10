@@ -2,6 +2,7 @@ package com.example.app.micro.deliveryservice.presentation.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,12 +30,14 @@ public class DeliveryController {
     private final DeliveryDtoMapper deliveryDtoMapper;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','OPERATOR')")
     public ResponseEntity<DeliveryResponse> create(@Valid @RequestBody CreateDeliveryRequest request) {
         Delivery created = deliveryApplicationService.createDelivery(deliveryDtoMapper.toDomain(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(deliveryDtoMapper.toResponse(created));
     }
 
     @PutMapping("/{deliveryId}/assign-driver")
+    @PreAuthorize("hasAnyRole('ADMIN','OPERATOR')")
     public ResponseEntity<DeliveryResponse> assignDriver(
             @PathVariable Long deliveryId,
             @Valid @RequestBody AssignDriverRequest request) {
@@ -46,6 +49,7 @@ public class DeliveryController {
     }
 
     @PutMapping("/{deliveryId}/status")
+    @PreAuthorize("hasAnyRole('DELIVERY','ADMIN','OPERATOR')")
     public ResponseEntity<DeliveryResponse> updateStatus(
             @PathVariable Long deliveryId,
             @Valid @RequestBody UpdateDeliveryStatusRequest request) {
@@ -54,6 +58,7 @@ public class DeliveryController {
     }
 
     @GetMapping("/order/{orderId}")
+    @PreAuthorize("hasAnyRole('USER','DELIVERY','ADMIN','OPERATOR')")
     public ResponseEntity<DeliveryResponse> getByOrderId(@PathVariable Long orderId) {
         Delivery delivery = deliveryApplicationService.getByOrderId(orderId);
         return ResponseEntity.ok(deliveryDtoMapper.toResponse(delivery));

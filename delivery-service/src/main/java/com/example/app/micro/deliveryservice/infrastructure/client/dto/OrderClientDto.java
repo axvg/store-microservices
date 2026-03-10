@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderClientDto {
     private Long id;
+    private Long userId;
 }

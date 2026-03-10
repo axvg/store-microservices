@@ -1,5 +1,8 @@
 package com.example.app.micro.deliveryservice.infrastructure.messaging;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -18,11 +21,31 @@ public class DeliveryEventPublisher {
     
     public void publishDeliveryAssigned(Delivery delivery) {
         log.info("Publishing DeliveryAssigned event for delivery id: {}", delivery.getId());
-        kafkaTemplate.send("delivery-assigned", String.valueOf(delivery.getId()), delivery);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("id", delivery.getId());
+        payload.put("orderId", delivery.getOrderId());
+        payload.put("status", delivery.getStatus().name());
+        payload.put("driverName", delivery.getDriverName());
+        payload.put("estimatedTime", delivery.getEstimatedTime());
+
+        kafkaTemplate.send(
+                "deliveries.assigned",
+                String.valueOf(delivery.getOrderId()),
+                EventEnvelope.of("deliveries.assigned", String.valueOf(delivery.getOrderId()), payload));
     }
     
-    public void publishOrderDelivered(Delivery delivery) {
-        log.info("Publishing OrderDelivered event for delivery id: {}", delivery.getId());
-        kafkaTemplate.send("order-delivered", String.valueOf(delivery.getId()), delivery);
+    public void publishStatusChanged(Delivery delivery) {
+        log.info("Publishing DeliveryStatusChanged event for delivery id: {}", delivery.getId());
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("id", delivery.getId());
+        payload.put("orderId", delivery.getOrderId());
+        payload.put("status", delivery.getStatus().name());
+        payload.put("driverName", delivery.getDriverName());
+        payload.put("estimatedTime", delivery.getEstimatedTime());
+
+        kafkaTemplate.send(
+                "deliveries.status.changed",
+                String.valueOf(delivery.getOrderId()),
+                EventEnvelope.of("deliveries.status.changed", String.valueOf(delivery.getOrderId()), payload));
     }
 }
