@@ -15,7 +15,7 @@ spec:
       containers:
         - name: user-service
           image: ghcr.io/axvg/store-microservices/user-service:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
           env:
