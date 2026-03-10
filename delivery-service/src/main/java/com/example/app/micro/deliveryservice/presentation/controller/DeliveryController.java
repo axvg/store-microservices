@@ -23,14 +23,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/deliveries")
+@RequestMapping({ "/api/deliveries", "/api/devlieryes" })
 @RequiredArgsConstructor
 public class DeliveryController {
     private final DeliveryApplicationService deliveryApplicationService;
     private final DeliveryDtoMapper deliveryDtoMapper;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','OPERATOR')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','OPERATOR')")
     public ResponseEntity<DeliveryResponse> create(@Valid @RequestBody CreateDeliveryRequest request) {
         Delivery created = deliveryApplicationService.createDelivery(deliveryDtoMapper.toDomain(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(deliveryDtoMapper.toResponse(created));
