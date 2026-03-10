@@ -22,7 +22,7 @@ public class OrderClient implements OrderGateway {
     public boolean existsById(Long orderId) {
         try {
             ResponseEntity<OrderClientDto> response = restTemplate.getForEntity(
-                    orderServiceUrl + "/api/orders/" + orderId,
+                    orderServiceUrl + "/api/orders/internal/" + orderId,
                     OrderClientDto.class);
             return response.getStatusCode().is2xxSuccessful() && response.getBody() != null;
         } catch (Exception ex) {

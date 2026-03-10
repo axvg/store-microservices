@@ -1,5 +1,8 @@
 package com.example.app.micro.paymentservice.infrastructure.messaging;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +18,18 @@ public class PaymentEventPublisher {
     
     private final KafkaTemplate<String, Object> kafkaTemplate;
     
-    public void publishPaymentCompleted(Payment payment) {
-        log.info("Publishing PaymentCompleted event for order id: {}", payment.getOrderId());
-        kafkaTemplate.send("payment-completed", String.valueOf(payment.getOrderId()), payment);
+    public void publishPaymentCaptured(Payment payment) {
+        log.info("Publishing PaymentCaptured event for order id: {}", payment.getOrderId());
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("id", payment.getId());
+        payload.put("orderId", payment.getOrderId());
+        payload.put("amount", payment.getAmount());
+        payload.put("status", payment.getStatus().name());
+        payload.put("method", payment.getMethod().name());
+
+        kafkaTemplate.send(
+                "payments.captured",
+                String.valueOf(payment.getOrderId()),
+                EventEnvelope.of("payments.captured", String.valueOf(payment.getOrderId()), payload));
     }
 }

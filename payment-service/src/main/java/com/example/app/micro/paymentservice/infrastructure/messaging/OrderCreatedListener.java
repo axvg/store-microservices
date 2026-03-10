@@ -6,7 +6,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import com.example.app.micro.paymentservice.application.service.PaymentApplicationService;
 import com.example.app.micro.paymentservice.domain.model.Payment;
 import com.example.app.micro.paymentservice.domain.model.PaymentMethod;
@@ -23,12 +22,17 @@ public class OrderCreatedListener {
     private final PaymentApplicationService paymentApplicationService;
     private final PaymentEventPublisher paymentEventPublisher;
 
-    @KafkaListener(topics = "order-created", groupId = "payment-group")
+    @KafkaListener(topics = "orders.created", groupId = "payment-group")
     public void handleOrderCreated(Map<String, Object> orderPayload) {
         log.info("Received OrderCreated event: {}", orderPayload);
         try {
-            Long orderId = ((Number) orderPayload.get("id")).longValue();
-            BigDecimal amount = new BigDecimal(String.valueOf(orderPayload.get("totalPrice")));
+            Map<String, Object> payload = orderPayload;
+            if (orderPayload.containsKey("payload") && orderPayload.get("payload") instanceof Map<?, ?> nestedPayload) {
+                payload = (Map<String, Object>) nestedPayload;
+            }
+
+            Long orderId = ((Number) payload.get("id")).longValue();
+            BigDecimal amount = new BigDecimal(String.valueOf(payload.get("totalPrice")));
             
             try {
                 paymentApplicationService.getByOrderId(orderId);
@@ -48,8 +52,8 @@ public class OrderCreatedListener {
                 createdPayment.setStatus(com.example.app.micro.paymentservice.domain.model.PaymentStatus.CONFIRMED);
                 paymentApplicationService.confirmPayment(createdPayment.getId());
                 
-                log.info("Payment confirmed automatically via mock. Emitting PaymentCompleted.");
-                paymentEventPublisher.publishPaymentCompleted(createdPayment);
+                log.info("Payment confirmed automatically via mock. Emitting PaymentCaptured.");
+                paymentEventPublisher.publishPaymentCaptured(createdPayment);
             }
 
         } catch (Exception e) {

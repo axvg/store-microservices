@@ -2,6 +2,7 @@ package com.example.app.micro.paymentservice.presentation.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,24 +27,28 @@ public class PaymentController {
     private final PaymentDtoMapper paymentDtoMapper;
 
     @PostMapping
+    @PreAuthorize("@paymentAuthorizationService.canAccessOrder(#request.orderId, authentication)")
     public ResponseEntity<PaymentResponse> create(@Valid @RequestBody CreatePaymentRequest request) {
         Payment created = paymentApplicationService.createPayment(paymentDtoMapper.toDomain(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentDtoMapper.toResponse(created));
     }
 
     @PostMapping("/{paymentId}/confirm")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','OPERATOR')")
     public ResponseEntity<PaymentResponse> confirm(@PathVariable Long paymentId) {
         Payment confirmed = paymentApplicationService.confirmPayment(paymentId);
         return ResponseEntity.ok(paymentDtoMapper.toResponse(confirmed));
     }
 
     @PostMapping("/{paymentId}/refund")
+    @PreAuthorize("hasAnyRole('ADMIN','OPERATOR')")
     public ResponseEntity<PaymentResponse> refund(@PathVariable Long paymentId) {
         Payment refunded = paymentApplicationService.refundPayment(paymentId);
         return ResponseEntity.ok(paymentDtoMapper.toResponse(refunded));
     }
 
     @GetMapping("/order/{orderId}")
+    @PreAuthorize("@paymentAuthorizationService.canAccessOrder(#orderId, authentication)")
     public ResponseEntity<PaymentResponse> getByOrderId(@PathVariable Long orderId) {
         return ResponseEntity.ok(paymentDtoMapper.toResponse(paymentApplicationService.getByOrderId(orderId)));
     }
