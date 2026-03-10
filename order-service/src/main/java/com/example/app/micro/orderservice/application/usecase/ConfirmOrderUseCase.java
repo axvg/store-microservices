@@ -6,6 +6,7 @@ import com.example.app.micro.orderservice.domain.exception.InvalidOrderDataExcep
 import com.example.app.micro.orderservice.domain.exception.OrderNotFoundException;
 import com.example.app.micro.orderservice.domain.model.Order;
 import com.example.app.micro.orderservice.domain.repository.OrderRepository;
+import com.example.app.micro.orderservice.infrastructure.messaging.OrderEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConfirmOrderUseCase {
     private final OrderRepository orderRepository;
+    private final OrderEventPublisher orderEventPublisher;
 
     public Order execute(Long orderId) {
         Order order = orderRepository.findById(orderId)
@@ -23,6 +25,8 @@ public class ConfirmOrderUseCase {
         }
 
         order.confirm();
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        orderEventPublisher.publishOrderConfirmed(saved);
+        return saved;
     }
 }

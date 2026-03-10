@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,12 +31,14 @@ public class OrderController {
     private final OrderDtoMapper orderDtoMapper;
 
     @PostMapping
+    @PreAuthorize("@orderAuthorizationService.canAccessUser(#request.userId, authentication)")
     public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody CreateOrderRequest request) {
         Order created = orderApplicationService.createOrder(orderDtoMapper.toDomain(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(orderDtoMapper.toResponse(created));
     }
 
     @PostMapping("/{orderId}/items")
+    @PreAuthorize("@orderAuthorizationService.canAccessOrder(#orderId, authentication)")
     public ResponseEntity<OrderResponse> addItem(
             @PathVariable Long orderId,
             @Valid @RequestBody AddOrderItemRequest request) {
@@ -44,6 +47,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/{orderId}/items/{productId}")
+    @PreAuthorize("@orderAuthorizationService.canAccessOrder(#orderId, authentication)")
     public ResponseEntity<OrderResponse> removeItem(
             @PathVariable Long orderId,
             @PathVariable Long productId) {
@@ -52,19 +56,28 @@ public class OrderController {
     }
 
     @PostMapping("/{orderId}/confirm")
+    @PreAuthorize("@orderAuthorizationService.canAccessOrder(#orderId, authentication)")
     public ResponseEntity<OrderResponse> confirmOrder(@PathVariable Long orderId) {
         Order confirmed = orderApplicationService.confirmOrder(orderId);
         return ResponseEntity.ok(orderDtoMapper.toResponse(confirmed));
     }
 
     @GetMapping("/{orderId}")
+    @PreAuthorize("@orderAuthorizationService.canAccessOrder(#orderId, authentication)")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long orderId) {
         return ResponseEntity.ok(orderDtoMapper.toResponse(orderApplicationService.getOrderById(orderId)));
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("@orderAuthorizationService.canAccessUser(#userId, authentication)")
     public ResponseEntity<List<OrderResponse>> getOrdersByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(orderDtoMapper.toResponseList(orderApplicationService.getOrdersByUser(userId)));
+    }
+
+    // Internal endpoint for service-to-service ownership lookups.
+    @GetMapping("/internal/{orderId}")
+    public ResponseEntity<OrderResponse> getOrderInternal(@PathVariable Long orderId) {
+        return ResponseEntity.ok(orderDtoMapper.toResponse(orderApplicationService.getOrderById(orderId)));
     }
 
     @GetMapping("/health")

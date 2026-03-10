@@ -39,6 +39,20 @@ spring.kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 spring.kafka.producer.key-serializer: org.apache.kafka.common.serialization.StringSerializer
 spring.kafka.producer.value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 spring.kafka.producer.properties.spring.json.add.type.headers: false
+spring.kafka.producer.acks: all
+spring.kafka.producer.retries: 3
+spring.kafka.consumer.group-id: order-group
+spring.kafka.consumer.auto-offset-reset: earliest
+spring.kafka.consumer.key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+spring.kafka.consumer.value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+spring.kafka.consumer.properties.spring.json.trusted.packages: "*"
+spring.kafka.consumer.properties.spring.json.use.type.headers: false
+spring.kafka.consumer.properties.spring.json.value.default.type: java.util.Map
+
+jwt:
+  secret: 4f7c9a1b6e3d8c2f0a5b9d7e1c4f8a6b2e9d0c3f7a1b6e4d9c2f8a5b1e7d3c6
+  expiration: 3600000
+
 resilience4j.circuitbreaker:
   instances:
     productService:

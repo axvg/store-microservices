@@ -35,7 +35,7 @@ public class UserClient implements UserGateway {
     public Optional<UserSnapshot> getUserById(Long userId) {
         try {
             ResponseEntity<UserClientDto> response = restTemplate.getForEntity(
-                    userServiceUrl + "/api/users/" + userId,
+                    userServiceUrl + "/api/users/internal/" + userId,
                     UserClientDto.class);
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
                 return Optional.empty();
