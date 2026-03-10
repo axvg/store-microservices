@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.app.micro.paymentservice.application.service.PaymentApplicationService;
+import com.example.app.micro.paymentservice.domain.exception.PaymentNotFoundException;
 import com.example.app.micro.paymentservice.domain.model.Payment;
 import com.example.app.micro.paymentservice.presentation.dto.CreatePaymentRequest;
 import com.example.app.micro.paymentservice.presentation.dto.PaymentResponse;
@@ -29,6 +30,13 @@ public class PaymentController {
     @PostMapping
     @PreAuthorize("@paymentAuthorizationService.canAccessOrder(#request.orderId, authentication)")
     public ResponseEntity<PaymentResponse> create(@Valid @RequestBody CreatePaymentRequest request) {
+        try {
+            Payment existing = paymentApplicationService.getByOrderId(request.getOrderId());
+            return ResponseEntity.ok(paymentDtoMapper.toResponse(existing));
+        } catch (PaymentNotFoundException ex) {
+            // Continue with creation when order has no payment yet.
+        }
+
         Payment created = paymentApplicationService.createPayment(paymentDtoMapper.toDomain(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentDtoMapper.toResponse(created));
     }
