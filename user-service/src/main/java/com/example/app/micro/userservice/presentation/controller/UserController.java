@@ -47,8 +47,17 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         log.info("REST request to get user by id: {}", id);
+        User user = userApplicationService.getUserById(id);
+        return ResponseEntity.ok(userDtoMapper.toResponse(user));
+    }
+
+    // Internal endpoint for service-to-service lookups.
+    @GetMapping("/internal/{id}")
+    public ResponseEntity<UserResponse> getUserByIdInternal(@PathVariable Long id) {
+        log.info("Internal REST request to get user by id: {}", id);
         User user = userApplicationService.getUserById(id);
         return ResponseEntity.ok(userDtoMapper.toResponse(user));
     }

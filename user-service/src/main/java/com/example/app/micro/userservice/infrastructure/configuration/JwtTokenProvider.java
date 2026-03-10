@@ -14,6 +14,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.example.app.micro.userservice.infrastructure.security.UserPrincipal;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -36,6 +38,10 @@ public class JwtTokenProvider {
         claims.put("roles", userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
+
+        if (userDetails instanceof UserPrincipal userPrincipal) {
+            claims.put("userId", userPrincipal.getId());
+        }
 
         return Jwts.builder()
                 .claims(claims)
