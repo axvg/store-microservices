@@ -31,12 +31,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/deliveries/health").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/devlieryes/health").permitAll()
                         .requestMatchers("/actuator/health/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/deliveries").hasAnyRole("ADMIN", "OPERATOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/deliveries/*/assign-driver").hasAnyRole("ADMIN", "OPERATOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/deliveries/*/status").hasAnyRole("DELIVERY", "ADMIN", "OPERATOR")
-                        .requestMatchers(HttpMethod.GET, "/api/deliveries/**").hasAnyRole("USER", "DELIVERY", "ADMIN", "OPERATOR")
+                    .requestMatchers(HttpMethod.POST, "/api/deliveries", "/api/devlieryes").hasAnyRole("USER", "ADMIN", "OPERATOR")
+                    .requestMatchers(HttpMethod.PUT, "/api/deliveries/*/assign-driver", "/api/devlieryes/*/assign-driver").hasAnyRole("ADMIN", "OPERATOR")
+                    .requestMatchers(HttpMethod.PUT, "/api/deliveries/*/status", "/api/devlieryes/*/status").hasAnyRole("DELIVERY", "ADMIN", "OPERATOR")
+                    .requestMatchers(HttpMethod.GET, "/api/deliveries/**", "/api/devlieryes/**").hasAnyRole("USER", "DELIVERY", "ADMIN", "OPERATOR")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
