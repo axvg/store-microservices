@@ -71,3 +71,9 @@ resilience4j.retry:
       maxAttempts: 3
       waitDuration: 1s
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
