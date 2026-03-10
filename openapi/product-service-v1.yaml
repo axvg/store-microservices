@@ -1,0 +1,39 @@
+openapi: 3.0.3
+info:
+  title: Product Service API
+  version: v1
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/products:
+    get:
+      summary: List products
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create product
+      responses:
+        '201':
+          description: Created
+  /api/products/{id}:
+    get:
+      summary: Get product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []

@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: User Service API
+  version: v1
+servers:
+  - url: http://localhost:8081
+paths:
+  /api/auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+      responses:
+        '200':
+          description: OK
+  /api/auth/register:
+    post:
+      summary: Register
+      requestBody:
+        required: true
+      responses:
+        '201':
+          description: Created
+  /api/users/{id}:
+    get:
+      summary: Get user by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
