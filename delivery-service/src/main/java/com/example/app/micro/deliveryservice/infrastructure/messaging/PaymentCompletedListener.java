@@ -6,9 +6,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import com.example.app.micro.deliveryservice.application.service.DeliveryApplicationService;
 import com.example.app.micro.deliveryservice.domain.model.Delivery;
+import com.example.app.micro.deliveryservice.domain.model.DeliveryStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +33,8 @@ public class PaymentCompletedListener {
             
             Delivery mockDelivery = Delivery.builder()
                 .orderId(orderId)
-                // Delivery address stubbed or extracted if included in payload
-                .address("Stubbed Address 123")
-                .status(com.example.app.micro.deliveryservice.domain.model.DeliveryStatus.CREATED)
+                .address("sample address")
+                .status(DeliveryStatus.CREATED)
                 .build();
                 
             Delivery created = deliveryApplicationService.createDelivery(mockDelivery);
