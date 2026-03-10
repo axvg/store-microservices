@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
@@ -10,6 +9,113 @@ services:
       - "5432:5432"
     volumes:
       - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    networks:
+      - store-network
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    image: ghcr.io/axvg/store-microservices/user-service:local
+    container_name: store-user-service
+    depends_on:
+      - postgres
+    environment:
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/storedb?sslmode=disable
+      SHOW_SQL: "false"
+      LOG_LEVEL: INFO
+    ports:
+      - "8081:8081"
+    networks:
+      - store-network
+
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    image: ghcr.io/axvg/store-microservices/product-service:local
+    container_name: store-product-service
+    depends_on:
+      - postgres
+      - user-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/storedb?sslmode=disable
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      USER_SERVICE_URL: http://user-service:8081
+      SHOW_SQL: "false"
+    ports:
+      - "8080:8080"
+    networks:
+      - store-network
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    image: ghcr.io/axvg/store-microservices/order-service:local
+    container_name: store-order-service
+    depends_on:
+      - postgres
+      - kafka
+      - user-service
+      - product-service
+    environment:
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/storedb?sslmode=disable
+      USER_SERVICE_URL: http://user-service:8081
+      PRODUCT_SERVICE_URL: http://product-service:8080
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SHOW_SQL: "false"
+    ports:
+      - "8082:8082"
+    networks:
+      - store-network
+
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    image: ghcr.io/axvg/store-microservices/payment-service:local
+    container_name: store-payment-service
+    depends_on:
+      - postgres
+      - kafka
+      - order-service
+    environment:
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/storedb?sslmode=disable
+      ORDER_SERVICE_URL: http://order-service:8082
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SHOW_SQL: "false"
+    ports:
+      - "8084:8084"
+    networks:
+      - store-network
+
+  delivery-service:
+    build:
+      context: ./delivery-service
+      dockerfile: Dockerfile
+    image: ghcr.io/axvg/store-microservices/delivery-service:local
+    container_name: store-delivery-service
+    depends_on:
+      - postgres
+      - kafka
+      - order-service
+    environment:
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/storedb?sslmode=disable
+      ORDER_SERVICE_URL: http://order-service:8082
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SHOW_SQL: "false"
+    ports:
+      - "8083:8083"
     networks:
       - store-network
 
@@ -38,6 +144,27 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092
+    networks:
+      - store-network
+
+  kafka-init:
+    image: bitnamilegacy/kafka:3.5.1
+    container_name: store-kafka-init
+    depends_on:
+      - kafka
+    entrypoint: ["/bin/bash", "-ec"]
+    command: |
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.created --partitions 6 --replication-factor 1
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.created.dlq --partitions 6 --replication-factor 1
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.confirmed --partitions 6 --replication-factor 1
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.confirmed.dlq --partitions 6 --replication-factor 1
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic payments.captured --partitions 6 --replication-factor 1
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic payments.captured.dlq --partitions 6 --replication-factor 1
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic deliveries.assigned --partitions 6 --replication-factor 1
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic deliveries.assigned.dlq --partitions 6 --replication-factor 1
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic deliveries.status.changed --partitions 6 --replication-factor 1
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic deliveries.status.changed.dlq --partitions 6 --replication-factor 1
+    restart: "no"
     networks:
       - store-network
 
