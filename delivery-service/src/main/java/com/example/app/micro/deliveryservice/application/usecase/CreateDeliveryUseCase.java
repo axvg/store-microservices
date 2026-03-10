@@ -26,6 +26,12 @@ public class CreateDeliveryUseCase {
         if (delivery.getAddress() == null || delivery.getAddress().isBlank()) {
             throw new InvalidDeliveryDataException("address is required");
         }
+
+        var existing = deliveryRepository.findByOrderId(delivery.getOrderId());
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
         if (!orderGateway.existsById(delivery.getOrderId())) {
             throw new OrderNotFoundException(delivery.getOrderId());
         }
